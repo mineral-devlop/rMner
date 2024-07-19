@@ -57,6 +57,7 @@ contract rMnerExchange is Ownable, ReentrancyGuard {
 
     function swap(address tokenA, uint256 _amount) public payable nonReentrant {
         require(stopSwap != true, "Exchange not opened");
+        require(tokenA == rMNER || tokenA == r2MNER, "Unsupported tokens");
 
         if (tokenA == rMNER) {
             uint256 _rMnerFee = _amount.mul(inFee).div(10000);
@@ -89,7 +90,7 @@ contract rMnerExchange is Ownable, ReentrancyGuard {
             IR2MNER(r2MNER).burn(r2MnerBalance);
 
             if (_feeAmount > 0) {
-                IERC20(rMNER).safeTransfer(msg.sender, _feeAmount);
+                IERC20(rMNER).safeTransfer(feeReceive, _feeAmount);
             }
             IERC20(rMNER).safeTransfer(msg.sender, _outAmount - _feeAmount);
 

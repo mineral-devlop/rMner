@@ -3,12 +3,14 @@
 pragma solidity ^0.8.7;
 
 import "./utils/SafeMath.sol";
+import "./utils/SafeMathInt.sol";
 import "./utils/Ownable.sol";
 import "./interface/IERC20.sol";
 import "./interface/IRMNERBlack.sol";
 
 contract r2MNER is IERC20, Ownable {
     using SafeMath for uint256;
+    using SafeMathInt for int256;
 
     address internal constant INITIAL_TOKEN_HOLDER =
         0x000000000000000000000000000000000000dEaD;
@@ -63,7 +65,7 @@ contract r2MNER is IERC20, Ownable {
     event LogRebase(uint256 indexed epoch, uint256 totalSupply);
 
     event LogMonetaryPolicyUpdated(address monetaryPolicy);
-    event LogExchangePolicyUpdated(address monetaryPolicy);
+    event LogExchangePolicyUpdated(address exchangePolicy);
 
     constructor(
         string memory name_,
@@ -93,7 +95,7 @@ contract r2MNER is IERC20, Ownable {
         emit LogExchangePolicyUpdated(exchangePolicy_);
     }
 
-    function rebase(uint256 _amount)
+    function rebase(int256 _amount)
         public
         onlyMonetaryPolicy
         returns (uint256)
@@ -104,9 +106,9 @@ contract r2MNER is IERC20, Ownable {
             return _totalSupply;
         }
         if (_amount < 0) {
-            _totalSupply = _totalSupply.sub(_amount);
+            _totalSupply = _totalSupply.sub(uint256(_amount.abs()));
         } else {
-            _totalSupply = _totalSupply.add(_amount);
+            _totalSupply = _totalSupply.add(uint256(_amount));
         }
         lastEpoch += 1;
         emit LogRebase(lastEpoch, _totalSupply);
@@ -140,10 +142,6 @@ contract r2MNER is IERC20, Ownable {
         override
         returns (bool)
     {
-        require(
-            IRMNERBlack(blackContract).isR2MnerBlack(msg.sender) != true,
-            "Abnormal account"
-        );
         _transfer(msg.sender, _recipient, _amount);
         return true;
     }
@@ -304,6 +302,10 @@ contract r2MNER is IERC20, Ownable {
         address _recipient,
         uint256 _sharesAmount
     ) internal {
+        require(
+            IRMNERBlack(blackContract).isR2MnerBlack(_sender) != true,
+            "Abnormal account"
+        );
         require(_sender != address(0), "TRANSFER_FROM_ZERO_ADDR");
         require(_recipient != address(0), "TRANSFER_TO_ZERO_ADDR");
         require(_recipient != address(this), "TRANSFER_TO_STETH_CONTRACT");
@@ -360,7 +362,7 @@ contract r2MNER is IERC20, Ownable {
     }
 
     function _burnShares(address _account, uint256 _sharesAmount)
-        public
+        internal
         returns (uint256 newTotalShares)
     {
         require(_account != address(0), "BURN_FROM_ZERO_ADDR");
