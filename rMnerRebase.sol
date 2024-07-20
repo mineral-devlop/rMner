@@ -31,7 +31,7 @@ contract rMnerRebase is Ownable {
 
         (, uint256 amountOut) = router.swapAmount{value: msg.value}(params);
 
-        IR2MNER(r2MNER).rebase(amountOut);
+        IR2MNER(r2MNER).rebase(int256(amountOut));
         emit SwapAndRebase(amountIn, amountOut);
     }
 
