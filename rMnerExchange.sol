@@ -37,6 +37,8 @@ contract rMnerExchange is Ownable, ReentrancyGuard {
     uint256 public btcInFee = 25;
     uint256 public btcOutFee = 25;
 
+    uint8 _decimalDiff;
+
     event Swap(
         address indexed user,
         address tokenA,
@@ -52,6 +54,7 @@ contract rMnerExchange is Ownable, ReentrancyGuard {
     ) Ownable(msg.sender) {
         rMNER = _rMNER;
         r2MNER = _r2MNER;
+        _decimalDiff = 9;
         rMnerPrice = _price;
     }
 
@@ -64,6 +67,9 @@ contract rMnerExchange is Ownable, ReentrancyGuard {
             uint256 _amountInWithFee = _amount.sub(_rMnerFee);
 
             uint256 _outAmount = _amountInWithFee.mul(rate).div(10000);
+            if (_decimalDiff > 0) {
+                _outAmount = _outAmount.div(10**_decimalDiff);
+            }
 
             IERC20(tokenA).safeTransferFrom(msg.sender, address(this), _amount);
             if (_rMnerFee > 0) {
@@ -76,6 +82,9 @@ contract rMnerExchange is Ownable, ReentrancyGuard {
             emit Swap(msg.sender, tokenA, r2MNER, _amount, _outAmount);
         } else {
             uint256 _outAmount = _amount.div(rate).mul(10000);
+            if (_decimalDiff > 0) {
+                _outAmount = _outAmount.mul(10**_decimalDiff);
+            }
 
             uint256 _feeAmount = _getRMnerFee(_outAmount, outFee);
             _takeBtcFee(_outAmount, btcOutFee);

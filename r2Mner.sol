@@ -22,6 +22,8 @@ contract r2MNER is IERC20, Ownable {
     uint256 _totalSupply;
     uint256 _totalShares;
 
+    uint8 _decimals = 9;
+
     uint256 public lastEpoch = 0;
 
     mapping(address => uint256) private shares;
@@ -75,7 +77,7 @@ contract r2MNER is IERC20, Ownable {
         _name = name_;
         _symbol = symbol_;
         blackContract = _blackContract;
-        _totalSupply = 1 * 10**18;
+        _totalSupply = 10000 * 10**_decimals;
         _mintInitialShares(_totalSupply);
     }
 
@@ -121,6 +123,10 @@ contract r2MNER is IERC20, Ownable {
 
     function symbol() public view virtual returns (string memory) {
         return _symbol;
+    }
+
+    function decimals() public view virtual returns (uint8) {
+        return _decimals;
     }
 
     function totalSupply() public view override returns (uint256) {

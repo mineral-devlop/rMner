@@ -8,5 +8,7 @@ interface IR2MNER is IERC20 {
 
     function burn(uint256 _amount) external;
 
+    function decimals() external returns (uint8);
+
     function rebase(int256 _amount) external returns (uint256);
 }
