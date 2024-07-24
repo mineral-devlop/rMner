@@ -22,7 +22,7 @@ contract r2MNER is IERC20, Ownable {
     uint256 _totalSupply;
     uint256 _totalShares;
 
-    uint8 _decimals = 9;
+    uint8 _decimals = 18;
 
     uint256 public lastEpoch = 0;
 

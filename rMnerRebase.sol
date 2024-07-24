@@ -4,18 +4,20 @@ import "https://github.com/izumiFinance/iZiSwap-periphery/blob/main/contracts/in
 import "./utils/TransferHelper.sol";
 import "./utils/Ownable.sol";
 import "./interface/IR2MNER.sol";
+import "./utils/SafeMath.sol";
 
 contract rMnerRebase is Ownable {
+    using SafeMath for uint256;
+
     ISwap private constant router =
         ISwap(0x4bD007912911f3Ee4b4555352b556B08601cE7Ce);
 
     address r2MNER;
     address exchangeAddress;
-    uint8 _decimalDiff;
 
     constructor(address _r2MNER, address _exchangeAddress) Ownable(msg.sender) {
         r2MNER = _r2MNER;
-        _decimalDiff = 9;
+
         exchangeAddress = _exchangeAddress;
     }
 
@@ -33,8 +35,8 @@ contract rMnerRebase is Ownable {
         });
 
         (, uint256 amountOut) = router.swapAmount{value: msg.value}(params);
-        uint256 r2Amount = amountOut / (_decimalDiff**10);
-        IR2MNER(r2MNER).rebase(int256(r2Amount));
+
+        IR2MNER(r2MNER).rebase(int256(amountOut));
         emit SwapAndRebase(amountIn, amountOut);
     }
 
