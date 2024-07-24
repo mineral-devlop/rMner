@@ -11,16 +11,19 @@ contract rMnerRebase is Ownable {
 
     address r2MNER;
     address exchangeAddress;
+    uint8 _decimalDiff;
 
     constructor(address _r2MNER, address _exchangeAddress) Ownable(msg.sender) {
         r2MNER = _r2MNER;
+        _decimalDiff = 9;
         exchangeAddress = _exchangeAddress;
     }
 
-    function buyrMner(
-        uint128 amountIn,
-        bytes memory path
-    ) public payable onlyOwner {
+    function buyrMner(uint128 amountIn, bytes memory path)
+        public
+        payable
+        onlyOwner
+    {
         ISwap.SwapAmountParams memory params = ISwap.SwapAmountParams({
             path: path,
             recipient: exchangeAddress,
@@ -30,8 +33,8 @@ contract rMnerRebase is Ownable {
         });
 
         (, uint256 amountOut) = router.swapAmount{value: msg.value}(params);
-
-        IR2MNER(r2MNER).rebase(int256(amountOut));
+        uint256 r2Amount = amountOut / (_decimalDiff**10);
+        IR2MNER(r2MNER).rebase(int256(r2Amount));
         emit SwapAndRebase(amountIn, amountOut);
     }
 
