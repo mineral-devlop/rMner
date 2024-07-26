@@ -170,7 +170,7 @@ contract rMnerExchange is Ownable, ReentrancyGuard {
             }
         } else {
             uint256 bal = IERC20(token).balanceOf(address(this));
-            IERC20(token).transfer(to, bal);
+            IERC20(token).safeTransfer(to, bal);
         }
         emit Withdraw(token, to);
     }

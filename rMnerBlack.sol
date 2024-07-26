@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
 
-import "https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/release-v4.9/contracts/proxy/utils/Initializable.sol";
-import "https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/release-v4.9/contracts/access/OwnableUpgradeable.sol";
+import "./utils/Initializable.sol";
+import "./utils/OwnableUpgradeable.sol";
 
 contract rMnerBlack is Initializable, OwnableUpgradeable {
     mapping(address => bool) rMnerBlacks;
