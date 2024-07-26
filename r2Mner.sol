@@ -22,7 +22,7 @@ contract r2MNER is IERC20, Ownable {
     uint256 _totalSupply;
     uint256 _totalShares;
 
-    uint8 _decimals = 18;
+    uint8 constant _decimals = 18;
 
     uint256 public lastEpoch = 0;
 
@@ -33,7 +33,7 @@ contract r2MNER is IERC20, Ownable {
     address public monetaryPolicy;
     address public exchangePolicy;
 
-    address blackContract;
+    address immutable blackContract;
 
     // rebasing permissions
     modifier onlyMonetaryPolicy() {
@@ -69,6 +69,8 @@ contract r2MNER is IERC20, Ownable {
     event LogMonetaryPolicyUpdated(address monetaryPolicy);
     event LogExchangePolicyUpdated(address exchangePolicy);
 
+    error BlackContractInvalid(address owner);
+
     constructor(
         string memory name_,
         string memory symbol_,
@@ -76,6 +78,10 @@ contract r2MNER is IERC20, Ownable {
     ) Ownable(msg.sender) {
         _name = name_;
         _symbol = symbol_;
+
+        if (_blackContract == address(0)) {
+            revert BlackContractInvalid(address(0));
+        }
         blackContract = _blackContract;
         _totalSupply = 10000 * 10**_decimals;
         _mintInitialShares(_totalSupply);
@@ -87,12 +93,14 @@ contract r2MNER is IERC20, Ownable {
 
     // update the rebaser
     function setMonetaryPolicy(address monetaryPolicy_) external onlyOwner {
+        require(monetaryPolicy_ != address(0), "Cannot be zero address");
         monetaryPolicy = monetaryPolicy_;
         emit LogMonetaryPolicyUpdated(monetaryPolicy_);
     }
 
     // update the exchanger
     function setExchangePolicy(address exchangePolicy_) external onlyOwner {
+        require(exchangePolicy_ != address(0), "Cannot be zero address");
         exchangePolicy = exchangePolicy_;
         emit LogExchangePolicyUpdated(exchangePolicy_);
     }

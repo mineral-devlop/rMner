@@ -19,7 +19,7 @@ contract rMner is Context, IERC20, IERC20Metadata, Ownable {
     string private _name;
     string private _symbol;
 
-    address blackContract;
+    address immutable blackContract;
 
     constructor(
         string memory name_,
@@ -27,6 +27,8 @@ contract rMner is Context, IERC20, IERC20Metadata, Ownable {
         address _blackContract,
         address _owner
     ) Ownable(_owner) {
+        require(_owner != address(0), "Cannot be zero address");
+        require(_blackContract != address(0), "Cannot be zero address");
         _name = name_;
         _symbol = symbol_;
         _mint(msg.sender, 21000000000 * 10**18);
@@ -150,8 +152,6 @@ contract rMner is Context, IERC20, IERC20Metadata, Ownable {
             "Abnormal account"
         );
 
-        _beforeTokenTransfer(from, to, amount);
-
         uint256 fromBalance = _balances[from];
         require(
             fromBalance >= amount,
@@ -165,14 +165,10 @@ contract rMner is Context, IERC20, IERC20Metadata, Ownable {
         }
 
         emit Transfer(from, to, amount);
-
-        _afterTokenTransfer(from, to, amount);
     }
 
     function _mint(address account, uint256 amount) internal virtual {
         require(account != address(0), "ERC20: mint to the zero address");
-
-        _beforeTokenTransfer(address(0), account, amount);
 
         _totalSupply += amount;
         unchecked {
@@ -180,8 +176,6 @@ contract rMner is Context, IERC20, IERC20Metadata, Ownable {
             _balances[account] += amount;
         }
         emit Transfer(address(0), account, amount);
-
-        _afterTokenTransfer(address(0), account, amount);
     }
 
     function _approve(
@@ -199,8 +193,6 @@ contract rMner is Context, IERC20, IERC20Metadata, Ownable {
     function _burn(address account, uint256 amount) internal virtual {
         require(account != address(0), "ERC20: burn from the zero address");
 
-        _beforeTokenTransfer(account, address(0), amount);
-
         uint256 accountBalance = _balances[account];
         require(accountBalance >= amount, "ERC20: burn amount exceeds balance");
         unchecked {
@@ -210,8 +202,6 @@ contract rMner is Context, IERC20, IERC20Metadata, Ownable {
         }
 
         emit Transfer(account, address(0), amount);
-
-        _afterTokenTransfer(account, address(0), amount);
     }
 
     function _spendAllowance(
@@ -230,16 +220,4 @@ contract rMner is Context, IERC20, IERC20Metadata, Ownable {
             }
         }
     }
-
-    function _beforeTokenTransfer(
-        address from,
-        address to,
-        uint256 amount
-    ) internal virtual {}
-
-    function _afterTokenTransfer(
-        address from,
-        address to,
-        uint256 amount
-    ) internal virtual {}
 }

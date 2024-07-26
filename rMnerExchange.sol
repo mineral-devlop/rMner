@@ -20,8 +20,8 @@ contract rMnerExchange is Ownable, ReentrancyGuard {
 
     // bsc
 
-    address public rMNER;
-    address public r2MNER;
+    address public immutable rMNER;
+    address public immutable r2MNER;
 
     address public rMnerPrice;
 
@@ -37,6 +37,19 @@ contract rMnerExchange is Ownable, ReentrancyGuard {
     uint256 public btcInFee = 25;
     uint256 public btcOutFee = 25;
 
+    address assetManager;
+    address admin;
+
+    modifier onlyAssetManager() {
+        require(msg.sender == assetManager, "permissions error");
+        _;
+    }
+
+    modifier onlyAdmin() {
+        require(msg.sender == admin, "permissions error");
+        _;
+    }
+
     event Swap(
         address indexed user,
         address tokenA,
@@ -48,11 +61,20 @@ contract rMnerExchange is Ownable, ReentrancyGuard {
     constructor(
         address _rMNER,
         address _r2MNER,
-        address _price
+        address _price,
+        address _admin,
+        address _assetManger
     ) Ownable(msg.sender) {
+        require(_price != address(0), "Cannot be zero address");
+        require(_assetManger != address(0), "Cannot be zero address");
+        require(_admin != address(0), "Cannot be zero address");
+        require(_rMNER != address(0), "Cannot be zero address");
+        require(_r2MNER != address(0), "Cannot be zero address");
         rMNER = _rMNER;
         r2MNER = _r2MNER;
         rMnerPrice = _price;
+        admin = _admin;
+        assetManager = _assetManger;
     }
 
     function swap(address tokenA, uint256 _amount) public payable nonReentrant {
@@ -94,7 +116,7 @@ contract rMnerExchange is Ownable, ReentrancyGuard {
             }
             IERC20(rMNER).safeTransfer(msg.sender, _outAmount - _feeAmount);
 
-            emit Swap(msg.sender, tokenA, r2MNER, _amount, _outAmount);
+            emit Swap(msg.sender, tokenA, rMNER, _amount, _outAmount);
         }
     }
 
@@ -134,7 +156,11 @@ contract rMnerExchange is Ownable, ReentrancyGuard {
         return _feeAmount;
     }
 
-    function withdrawTokensSelf(address token, address to) external onlyOwner {
+    function withdrawTokensSelf(address token, address to)
+        external
+        onlyAssetManager
+    {
+        require(to != address(0), "Cannot be zero address");
         if (token == address(0)) {
             (bool success, ) = payable(to).call{value: address(this).balance}(
                 ""
@@ -149,16 +175,23 @@ contract rMnerExchange is Ownable, ReentrancyGuard {
         emit Withdraw(token, to);
     }
 
-    function setBtcFee(uint256 _in, uint256 _out) external onlyOwner {
+    function setBtcFee(uint256 _in, uint256 _out) external onlyAdmin {
         btcInFee = _in;
         btcOutFee = _out;
         emit UpdateBtcFee(_in, _out);
     }
 
-    function setFee(uint256 _in, uint256 _out) external onlyOwner {
+    function setFee(uint256 _in, uint256 _out) external onlyAdmin {
         inFee = _in;
         outFee = _out;
         emit UpdateFee(_in, _out);
+    }
+
+    function setSwapRate(uint256 _rate) external onlyAdmin {
+        require(_rate > 0, "Ratio must be greater than 0");
+        uint256 prev = rate;
+        rate = _rate;
+        emit UpdateRate(prev, _rate);
     }
 
     function setStopSwap(bool _stop) external onlyOwner {
@@ -167,22 +200,32 @@ contract rMnerExchange is Ownable, ReentrancyGuard {
         emit UpdateSwapState(prev, _stop);
     }
 
-    function setSwapRate(uint256 _rate) external onlyOwner {
-        uint256 prev = rate;
-        rate = _rate;
-        emit UpdateRate(prev, _rate);
-    }
-
     function setPriceAddress(address rMnerPrice_) external onlyOwner {
+        require(rMnerPrice_ != address(0), "Cannot be zero address");
         address prev = rMnerPrice;
         rMnerPrice = rMnerPrice_;
         emit UpdateRMnerPrice(prev, rMnerPrice_);
     }
 
     function setFeeReceive(address feeReceive_) external onlyOwner {
+        require(feeReceive_ != address(0), "Cannot be zero address");
         address prev = feeReceive;
         feeReceive = feeReceive_;
         emit UpdateFeeReceive(prev, feeReceive_);
+    }
+
+    function setAdmin(address admin_) external onlyOwner {
+        require(admin_ != address(0), "Cannot be zero address");
+        address prev = admin;
+        admin = admin_;
+        emit UpdateAdmin(prev, admin_);
+    }
+
+    function setAssetManager(address assetManager_) external onlyOwner {
+        require(assetManager_ != address(0), "Cannot be zero address");
+        address prev = assetManager;
+        assetManager = assetManager_;
+        emit UpdateAdmin(prev, assetManager_);
     }
 
     receive() external payable {
@@ -198,4 +241,7 @@ contract rMnerExchange is Ownable, ReentrancyGuard {
     event UpdateRate(uint256 oldRate, uint256 newRate);
     event UpdateRMnerPrice(address old, address newAddress);
     event UpdateFeeReceive(address old, address newAddress);
+
+    event UpdateAdmin(address old, address newAddress);
+    event UpdateAssetManager(address old, address newAddress);
 }

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
-import "https://github.com/izumiFinance/iZiSwap-core/blob/main/contracts/interfaces/IiZiSwapPool.sol";
+import "./interface/IiZiSwapPool.sol";
 import "./utils/SafeMath.sol";
 
 contract rMnerPrice {
