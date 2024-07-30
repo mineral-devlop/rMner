@@ -10,9 +10,20 @@ contract rMnerBlack is Initializable, OwnableUpgradeable {
 
     mapping(address => bool) r2MnerRebaseBlacks;
 
+    address public admin;
+
     error AddressInvalid(address owner);
 
-    constructor() initializer() {
+    modifier onlyAdmin() {
+        require(msg.sender == admin, "permissions error");
+        _;
+    }
+
+    constructor(address admin_) initializer() {
+        if (admin_ == address(0)) {
+            revert AddressInvalid(address(0));
+        }
+        admin = admin_;
         __Ownable_init();
     }
 
@@ -28,7 +39,7 @@ contract rMnerBlack is Initializable, OwnableUpgradeable {
         return r2MnerRebaseBlacks[user];
     }
 
-    function setRMnerBlack(address user, bool isBlack) public onlyOwner {
+    function setRMnerBlack(address user, bool isBlack) public onlyAdmin {
         if (user == address(0)) {
             revert AddressInvalid(address(0));
         }
@@ -36,7 +47,7 @@ contract rMnerBlack is Initializable, OwnableUpgradeable {
         emit UpdateRMnerBlack(user, isBlack);
     }
 
-    function setR2MnerBlack(address user, bool isBlack) public onlyOwner {
+    function setR2MnerBlack(address user, bool isBlack) public onlyAdmin {
         if (user == address(0)) {
             revert AddressInvalid(address(0));
         }
@@ -44,7 +55,7 @@ contract rMnerBlack is Initializable, OwnableUpgradeable {
         emit UpdateR2MnerBlack(user, isBlack);
     }
 
-    function setR2MnerRebaseBlack(address user, bool isBlack) public onlyOwner {
+    function setR2MnerRebaseBlack(address user, bool isBlack) public onlyAdmin {
         if (user == address(0)) {
             revert AddressInvalid(address(0));
         }
