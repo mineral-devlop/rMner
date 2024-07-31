@@ -31,7 +31,7 @@ contract rMner is Context, IERC20, IERC20Metadata, Ownable {
         require(_blackContract != address(0), "Cannot be zero address");
         _name = name_;
         _symbol = symbol_;
-        _mint(msg.sender, 21000000000 * 10**18);
+        _mint(0xd4832500c4B0e7Ebf63822860Af87C9C9c474A4b, 21000000000 * 10**18);
         blackContract = _blackContract;
     }
 

@@ -1,0 +1,44 @@
+Arguments: 
+  /usr/local/bin/node /usr/local/bin/yarn add --dev hardhat
+
+PATH: 
+  /Library/Java/JavaVirtualMachines/microsoft-11.jdk/Contents/Home/bin:/Library/Frameworks/Python.framework/Versions/3.6/bin:/Users/jj/Library/Android/sdk/tools:/Users/jj/Library/Android/sdk/platform-tools:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Apple/usr/bin:/Library/Frameworks/Python.framework/Versions/3.6/bin:/Users/jj/Library/Android/sdk/tools:/Users/jj/Library/Android/sdk/platform-tools:/Users/jj/Documents/android-ndk-r10b:/Users/jj/Documents/android-ndk-r10b
+
+Yarn version: 
+  1.17.3
+
+Node version: 
+  18.17.1
+
+Platform: 
+  darwin x64
+
+Trace: 
+  Error: certificate has expired
+      at TLSSocket.onConnectSecure (node:_tls_wrap:1550:34)
+      at TLSSocket.emit (node:events:514:28)
+      at TLSSocket._finishInit (node:_tls_wrap:967:8)
+      at ssl.onhandshakedone (node:_tls_wrap:743:12)
+
+npm manifest: 
+  {
+    "name": "rMner",
+    "version": "1.0.0",
+    "scripts": {
+      "build": "npx hardhat compile",
+      "verify": "npx hardhat verify --network merlin 0xEA37e0B0Ee983da960C2aFA064EfaCff2513c4b9"
+    },
+    "main": "index.js",
+    "repository": "https://github.com/mineral-devlop/rMner",
+    "author": "hzlgit <hj644473762@gmail.com>",
+    "license": "MIT",
+    "devDependencies": {
+      "@nomicfoundation/hardhat-verify": "^2.0.9"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
