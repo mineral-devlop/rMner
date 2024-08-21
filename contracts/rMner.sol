@@ -24,14 +24,12 @@ contract rMner is Context, IERC20, IERC20Metadata, Ownable {
     constructor(
         string memory name_,
         string memory symbol_,
-        address _blackContract,
-        address _owner
-    ) Ownable(_owner) {
-        require(_owner != address(0), "Cannot be zero address");
+        address _blackContract
+    ) Ownable(0xe317074e7F2813221720C527fF1a6BC0348b5Ac9) {
         require(_blackContract != address(0), "Cannot be zero address");
         _name = name_;
         _symbol = symbol_;
-        _mint(0xd4832500c4B0e7Ebf63822860Af87C9C9c474A4b, 21000000000 * 10**18);
+        _mint(0xbe1448a1EBDF4C2822fA7929bfE81f67DcA8B132, 827988 * 10 ** 18);
         blackContract = _blackContract;
     }
 
@@ -51,43 +49,32 @@ contract rMner is Context, IERC20, IERC20Metadata, Ownable {
         return _totalSupply;
     }
 
-    function balanceOf(address account)
-        public
-        view
-        virtual
-        override
-        returns (uint256)
-    {
+    function balanceOf(
+        address account
+    ) public view virtual override returns (uint256) {
         return _balances[account];
     }
 
-    function transfer(address to, uint256 amount)
-        public
-        virtual
-        override
-        returns (bool)
-    {
+    function transfer(
+        address to,
+        uint256 amount
+    ) public virtual override returns (bool) {
         address owner = _msgSender();
         _transfer(owner, to, amount);
         return true;
     }
 
-    function allowance(address owner, address spender)
-        public
-        view
-        virtual
-        override
-        returns (uint256)
-    {
+    function allowance(
+        address owner,
+        address spender
+    ) public view virtual override returns (uint256) {
         return _allowances[owner][spender];
     }
 
-    function approve(address spender, uint256 amount)
-        public
-        virtual
-        override
-        returns (bool)
-    {
+    function approve(
+        address spender,
+        uint256 amount
+    ) public virtual override returns (bool) {
         address owner = _msgSender();
         _approve(owner, spender, amount);
         return true;
@@ -112,21 +99,19 @@ contract rMner is Context, IERC20, IERC20Metadata, Ownable {
         return true;
     }
 
-    function increaseAllowance(address spender, uint256 addedValue)
-        public
-        virtual
-        returns (bool)
-    {
+    function increaseAllowance(
+        address spender,
+        uint256 addedValue
+    ) public virtual returns (bool) {
         address owner = _msgSender();
         _approve(owner, spender, allowance(owner, spender) + addedValue);
         return true;
     }
 
-    function decreaseAllowance(address spender, uint256 subtractedValue)
-        public
-        virtual
-        returns (bool)
-    {
+    function decreaseAllowance(
+        address spender,
+        uint256 subtractedValue
+    ) public virtual returns (bool) {
         address owner = _msgSender();
         uint256 currentAllowance = allowance(owner, spender);
         require(

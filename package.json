@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "build": "npx hardhat compile",
-    "verify": "npx hardhat verify --network merlin 0xEA37e0B0Ee983da960C2aFA064EfaCff2513c4b9 --constructor-args arguments.js"
+    "verify": "npx hardhat verify --network merlin 0x4FD67c2D9e8c4fDd9C66954bafe124Ca50fC1819 --constructor-args arguments.js"
   },
   "main": "index.js",
   "repository": "https://github.com/mineral-devlop/rMner",
