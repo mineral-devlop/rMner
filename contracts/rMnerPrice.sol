@@ -11,10 +11,10 @@ contract rMnerPrice {
     function getPrice() external view returns (uint256) {
         uint128 amount = 1 * 10 ** 18;
         (uint256 out, ) = this.getAmountsOut(
-            0x40805D2F5056182851Ef86347e8DA23D12A41ffA,
+            0xF66440a8F6601b94E54cCB3a9660E086949152b9,
             amount
         );
-        return out;
+        return FullMath.mulDiv(amount, 10 ** 18, out);
     }
 
     function getAmountsOut(

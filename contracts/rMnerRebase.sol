@@ -11,26 +11,27 @@ contract rMnerRebase is Ownable {
     using SafeERC20 for IERC20;
 
     ISwap private constant router =
-        ISwap(0x4bD007912911f3Ee4b4555352b556B08601cE7Ce);
+        ISwap(0x1aFa5D7f89743219576Ef48a9826261bE6378a68);
 
     address public immutable r2MNER;
     address public immutable exchangeAddress;
 
-    constructor(address _r2MNER, address _exchangeAddress) Ownable(msg.sender) {
-
+    constructor(
+        address _r2MNER,
+        address _exchangeAddress
+    ) Ownable(0xE8fa7201e01450AFAaFaaE3205dE9b203F8Ed08f) {
         require(_exchangeAddress != address(0), "Cannot be zero address");
         require(_r2MNER != address(0), "Cannot be zero address");
-        
+
         r2MNER = _r2MNER;
 
         exchangeAddress = _exchangeAddress;
     }
 
-    function buyrMner(uint128 amountIn, bytes memory path)
-        public
-        payable
-        onlyOwner
-    {
+    function buyrMner(
+        uint128 amountIn,
+        bytes memory path
+    ) public payable onlyOwner {
         ISwap.SwapAmountParams memory params = ISwap.SwapAmountParams({
             path: path,
             recipient: exchangeAddress,
