@@ -1,30 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
 
-import "./utils/Initializable.sol";
-import "./utils/OwnableUpgradeable.sol";
+import {Ownable} from "./utils/Ownable.sol";
 
-contract rMnerBlack is Initializable, OwnableUpgradeable {
+contract rMnerBlack is  Ownable {
     mapping(address => bool) rMnerBlacks;
     mapping(address => bool) r2MnerBlacks;
-
     mapping(address => bool) r2MnerRebaseBlacks;
-
-    address public admin;
 
     error AddressInvalid(address owner);
 
-    modifier onlyAdmin() {
-        require(msg.sender == admin, "permissions error");
-        _;
-    }
-
-    constructor(address admin_) initializer() {
-        if (admin_ == address(0)) {
+    constructor(address owner_) Ownable(owner_) {
+        if (owner_ == address(0)) {
             revert AddressInvalid(address(0));
         }
-        admin = admin_;
-        __Ownable_init();
     }
 
     function isRMnerBlack(address user) public view returns (bool) {
@@ -39,7 +28,7 @@ contract rMnerBlack is Initializable, OwnableUpgradeable {
         return r2MnerRebaseBlacks[user];
     }
 
-    function setRMnerBlack(address user, bool isBlack) public onlyAdmin {
+    function setRMnerBlack(address user, bool isBlack) public onlyOwner {
         if (user == address(0)) {
             revert AddressInvalid(address(0));
         }
@@ -47,7 +36,7 @@ contract rMnerBlack is Initializable, OwnableUpgradeable {
         emit UpdateRMnerBlack(user, isBlack);
     }
 
-    function setR2MnerBlack(address user, bool isBlack) public onlyAdmin {
+    function setR2MnerBlack(address user, bool isBlack) public onlyOwner {
         if (user == address(0)) {
             revert AddressInvalid(address(0));
         }
@@ -55,7 +44,7 @@ contract rMnerBlack is Initializable, OwnableUpgradeable {
         emit UpdateR2MnerBlack(user, isBlack);
     }
 
-    function setR2MnerRebaseBlack(address user, bool isBlack) public onlyAdmin {
+    function setR2MnerRebaseBlack(address user, bool isBlack) public onlyOwner {
         if (user == address(0)) {
             revert AddressInvalid(address(0));
         }

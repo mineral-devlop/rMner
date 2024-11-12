@@ -18,8 +18,6 @@ contract rMnerExchange is Ownable, ReentrancyGuard {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
-    // bsc
-
     address public immutable rMNER;
     address public immutable r2MNER;
 
@@ -120,13 +118,13 @@ contract rMnerExchange is Ownable, ReentrancyGuard {
         }
     }
 
-    function _takeBtcFee(
-        uint256 _amount,
-        uint256 _feeRate
-    ) internal returns (uint256) {
+    function _takeBtcFee(uint256 _amount, uint256 _feeRate)
+        internal
+        returns (uint256)
+    {
         uint256 _feeAmount = _amount.mul(_feeRate).div(10000);
         uint256 _rMnerPrice = IRMNERPrice(rMnerPrice).getPrice();
-        uint256 _btcFee = _feeAmount.mul(_rMnerPrice).div(10 ** 18);
+        uint256 _btcFee = _feeAmount.mul(_rMnerPrice).div(10**18);
 
         if (_btcFee > 0) {
             require(msg.value >= _btcFee, "Insufficient handling fee");
@@ -147,18 +145,19 @@ contract rMnerExchange is Ownable, ReentrancyGuard {
         return _btcFee;
     }
 
-    function _getRMnerFee(
-        uint256 _amount,
-        uint256 _feeRate
-    ) internal pure returns (uint256) {
+    function _getRMnerFee(uint256 _amount, uint256 _feeRate)
+        internal
+        pure
+        returns (uint256)
+    {
         uint256 _feeAmount = _amount.mul(_feeRate).div(10000);
         return _feeAmount;
     }
 
-    function withdrawTokensSelf(
-        address token,
-        address to
-    ) external onlyAssetManager {
+    function withdrawTokensSelf(address token, address to)
+        external
+        onlyAssetManager
+    {
         require(to != address(0), "Cannot be zero address");
         if (token == address(0)) {
             (bool success, ) = payable(to).call{value: address(this).balance}(

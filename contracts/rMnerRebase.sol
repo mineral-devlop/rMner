@@ -5,18 +5,20 @@ import "./utils/SafeERC20.sol";
 import "./utils/Ownable.sol";
 import "./interface/IR2MNER.sol";
 import "./utils/SafeMath.sol";
+import "./utils/TransferHelper.sol";
 
 contract rMnerRebase is Ownable {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
     ISwap private constant router =
-        ISwap(0x1aFa5D7f89743219576Ef48a9826261bE6378a68);
+        ISwap(0x1b81D678ffb9C0263b24A97847620C99d213eB14);
 
     address public immutable r2MNER;
+    address public immutable BTC = 0xaEA9640259E91Cd5d4CAE0091c5590f7dAf29c85;
     address public immutable exchangeAddress;
 
-    address public admin = 0xE8fa7201e01450AFAaFaaE3205dE9b203F8Ed08f;
+    address public admin = 0x5467d7601ae4feF667A45fFAbcE57A346a0Ba116;
 
     bytes public path;
 
@@ -35,7 +37,7 @@ contract rMnerRebase is Ownable {
         address _r2MNER,
         address _exchangeAddress,
         bytes memory path_
-    ) Ownable(0xe317074e7F2813221720C527fF1a6BC0348b5Ac9) {
+    ) Ownable(msg.sender) {
         require(_exchangeAddress != address(0), "Cannot be zero address");
         require(_r2MNER != address(0), "Cannot be zero address");
 
@@ -44,18 +46,22 @@ contract rMnerRebase is Ownable {
         exchangeAddress = _exchangeAddress;
     }
 
-    function buyrMner(uint128 amountIn) public payable onlyAdmin {
+    function buyrMner(uint128 amountIn) public onlyAdmin {
         require(nextTime < block.timestamp, "Operating too quickly");
 
-        ISwap.SwapAmountParams memory params = ISwap.SwapAmountParams({
+        IERC20(BTC).safeTransferFrom(msg.sender, address(this), amountIn);
+
+        TransferHelper.safeApprove(BTC, address(router), amountIn);
+
+        ISwap.ExactInputParams memory params = ISwap.ExactInputParams({
             path: path,
             recipient: exchangeAddress,
-            amount: amountIn,
-            minAcquired: 0,
+            amountIn: amountIn,
+            amountOutMinimum: 0,
             deadline: block.timestamp
         });
 
-        (, uint256 amountOut) = router.swapAmount{value: msg.value}(params);
+        uint256 amountOut = router.exactInput(params);
         if (amountOut == 0 || amountOut > maxOutAmount) {
             revert RMNERAmountInvalid();
         }

@@ -4,7 +4,8 @@
   "scripts": {
     "build": "npx hardhat compile",
     "verify": "npx hardhat verify --network merlin 0x4FD67c2D9e8c4fDd9C66954bafe124Ca50fC1819 --constructor-args arguments.js",
-    "ver-rb": "npx hardhat verify --network merlin 0x6a69b93979C0672ABcd95386FB60424BA433a81C --constructor-args rb.js "
+    "ver-rb": "npx hardhat verify --network merlin 0x6a69b93979C0672ABcd95386FB60424BA433a81C --constructor-args rb.js ",
+    "ver-r2e": "npx hardhat verify --network bscTest 0x49c955aCA1d39136046E832e4A5Fa1046eD47014 --constructor-args r2e.js "
   },
   "main": "index.js",
   "repository": "https://github.com/mineral-devlop/rMner",

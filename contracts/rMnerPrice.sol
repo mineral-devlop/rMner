@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
-import "./interface/IiZiSwapPool.sol";
+import "./interface/IUniswapV3Pool.sol";
 import "./utils/SafeMath.sol";
 
 contract rMnerPrice {
@@ -9,20 +9,27 @@ contract rMnerPrice {
     constructor() {}
 
     function getPrice() external view returns (uint256) {
-        uint128 amount = 1 * 10 ** 18;
+        uint128 amount = 1 * 10**18;
         (uint256 out, ) = this.getAmountsOut(
-            0xF66440a8F6601b94E54cCB3a9660E086949152b9,
+            0xcD8c2E3406CabAC7c85518EF71fC4E4704B76778,
             amount
         );
-        return FullMath.mulDiv(amount, 10 ** 18, out);
+
+        (uint256 btcOfWeth, ) = this.getAmountsOut(
+            0x0F49ba14b4C4cec1157671254E5f61012a753950,
+            amount
+        );
+        return FullMath.mulDiv(out, btcOfWeth, amount);
+        // return out;
     }
 
-    function getAmountsOut(
-        address pool,
-        uint256 amountIn
-    ) public view returns (uint256, uint160) {
-        IiZiSwapPool IPool = IiZiSwapPool(pool);
-        (uint160 sqrtPriceX96, , , , , , , ) = IPool.state();
+    function getAmountsOut(address pool, uint256 amountIn)
+        public
+        view
+        returns (uint256, uint160)
+    {
+        IUniswapV3Pool IPool = IUniswapV3Pool(pool);
+        (uint160 sqrtPriceX96, , , , , ,) = IPool.slot0();
 
         uint256 squaredPrice = FullMath.mulDiv(
             sqrtPriceX96,

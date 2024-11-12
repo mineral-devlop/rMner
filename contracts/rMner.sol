@@ -7,9 +7,8 @@ import "./utils/Context.sol";
 import "./interface/IERC20Metadata.sol";
 import "./interface/IERC20.sol";
 import "./interface/IRMNERBlack.sol";
-import "./utils/Ownable.sol";
 
-contract rMner is Context, IERC20, IERC20Metadata, Ownable {
+contract rMner is Context, IERC20, IERC20Metadata {
     mapping(address => uint256) private _balances;
 
     mapping(address => mapping(address => uint256)) private _allowances;
@@ -19,17 +18,12 @@ contract rMner is Context, IERC20, IERC20Metadata, Ownable {
     string private _name;
     string private _symbol;
 
-    address immutable blackContract;
+    address blackContract;
 
-    constructor(
-        string memory name_,
-        string memory symbol_,
-        address _blackContract
-    ) Ownable(0xe317074e7F2813221720C527fF1a6BC0348b5Ac9) {
-        require(_blackContract != address(0), "Cannot be zero address");
+    constructor(string memory name_, string memory symbol_, address _blackContract) {
         _name = name_;
         _symbol = symbol_;
-        _mint(0xbe1448a1EBDF4C2822fA7929bfE81f67DcA8B132, 827988 * 10 ** 18);
+        _mint(msg.sender, 21000000000*10**18);
         blackContract = _blackContract;
     }
 
@@ -49,43 +43,48 @@ contract rMner is Context, IERC20, IERC20Metadata, Ownable {
         return _totalSupply;
     }
 
-    function balanceOf(
-        address account
-    ) public view virtual override returns (uint256) {
+    
+
+    function balanceOf(address account)
+        public
+        view
+        virtual
+        override
+        returns (uint256)
+    {
         return _balances[account];
     }
 
-    function transfer(
-        address to,
-        uint256 amount
-    ) public virtual override returns (bool) {
+    function transfer(address to, uint256 amount)
+        public
+        virtual
+        override
+        returns (bool)
+    {
         address owner = _msgSender();
         _transfer(owner, to, amount);
         return true;
     }
 
-    function allowance(
-        address owner,
-        address spender
-    ) public view virtual override returns (uint256) {
+    function allowance(address owner, address spender)
+        public
+        view
+        virtual
+        override
+        returns (uint256)
+    {
         return _allowances[owner][spender];
     }
 
-    function approve(
-        address spender,
-        uint256 amount
-    ) public virtual override returns (bool) {
+    function approve(address spender, uint256 amount)
+        public
+        virtual
+        override
+        returns (bool)
+    {
         address owner = _msgSender();
         _approve(owner, spender, amount);
         return true;
-    }
-
-    function mint(uint256 _amount) external onlyOwner {
-        _mint(msg.sender, _amount);
-    }
-
-    function burn(uint256 _amount) external onlyOwner {
-        _burn(msg.sender, _amount);
     }
 
     function transferFrom(
@@ -99,19 +98,21 @@ contract rMner is Context, IERC20, IERC20Metadata, Ownable {
         return true;
     }
 
-    function increaseAllowance(
-        address spender,
-        uint256 addedValue
-    ) public virtual returns (bool) {
+    function increaseAllowance(address spender, uint256 addedValue)
+        public
+        virtual
+        returns (bool)
+    {
         address owner = _msgSender();
         _approve(owner, spender, allowance(owner, spender) + addedValue);
         return true;
     }
 
-    function decreaseAllowance(
-        address spender,
-        uint256 subtractedValue
-    ) public virtual returns (bool) {
+    function decreaseAllowance(address spender, uint256 subtractedValue)
+        public
+        virtual
+        returns (bool)
+    {
         address owner = _msgSender();
         uint256 currentAllowance = allowance(owner, spender);
         require(
@@ -137,6 +138,8 @@ contract rMner is Context, IERC20, IERC20Metadata, Ownable {
             "Abnormal account"
         );
 
+        _beforeTokenTransfer(from, to, amount);
+
         uint256 fromBalance = _balances[from];
         require(
             fromBalance >= amount,
@@ -150,10 +153,14 @@ contract rMner is Context, IERC20, IERC20Metadata, Ownable {
         }
 
         emit Transfer(from, to, amount);
+
+        _afterTokenTransfer(from, to, amount);
     }
 
     function _mint(address account, uint256 amount) internal virtual {
         require(account != address(0), "ERC20: mint to the zero address");
+
+        _beforeTokenTransfer(address(0), account, amount);
 
         _totalSupply += amount;
         unchecked {
@@ -161,6 +168,26 @@ contract rMner is Context, IERC20, IERC20Metadata, Ownable {
             _balances[account] += amount;
         }
         emit Transfer(address(0), account, amount);
+
+        _afterTokenTransfer(address(0), account, amount);
+    }
+
+    function _burn(address account, uint256 amount) internal virtual {
+        require(account != address(0), "ERC20: burn from the zero address");
+
+        _beforeTokenTransfer(account, address(0), amount);
+
+        uint256 accountBalance = _balances[account];
+        require(accountBalance >= amount, "ERC20: burn amount exceeds balance");
+        unchecked {
+            _balances[account] = accountBalance - amount;
+            // Overflow not possible: amount <= accountBalance <= totalSupply.
+            _totalSupply -= amount;
+        }
+
+        emit Transfer(account, address(0), amount);
+
+        _afterTokenTransfer(account, address(0), amount);
     }
 
     function _approve(
@@ -173,20 +200,6 @@ contract rMner is Context, IERC20, IERC20Metadata, Ownable {
 
         _allowances[owner][spender] = amount;
         emit Approval(owner, spender, amount);
-    }
-
-    function _burn(address account, uint256 amount) internal virtual {
-        require(account != address(0), "ERC20: burn from the zero address");
-
-        uint256 accountBalance = _balances[account];
-        require(accountBalance >= amount, "ERC20: burn amount exceeds balance");
-        unchecked {
-            _balances[account] = accountBalance - amount;
-            // Overflow not possible: amount <= accountBalance <= totalSupply.
-            _totalSupply -= amount;
-        }
-
-        emit Transfer(account, address(0), amount);
     }
 
     function _spendAllowance(
@@ -205,4 +218,16 @@ contract rMner is Context, IERC20, IERC20Metadata, Ownable {
             }
         }
     }
+
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 amount
+    ) internal virtual {}
+
+    function _afterTokenTransfer(
+        address from,
+        address to,
+        uint256 amount
+    ) internal virtual {}
 }
